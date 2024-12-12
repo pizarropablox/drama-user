@@ -1,6 +1,5 @@
 package com.drama.drama_user.controller;
 
-import com.drama.drama_user.model.LoginRequest;
 import com.drama.drama_user.model.User;
 import com.drama.drama_user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,25 +15,22 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // Endpoint para registrar un usuario
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
-        userService.createUser(user);
-        return ResponseEntity.ok("Usuario registrado exitosamente");
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+    try {
+        User newUser = userService.createUser(user);
+        return ResponseEntity.ok(newUser);
+    } catch (RuntimeException e) {
+        return ResponseEntity.badRequest().body("Error al registrar el usuario: " + e.getMessage());
     }
+}
 
+
+    // Endpoint para obtener todos los usuarios
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        boolean isAuthenticated = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
-        if (isAuthenticated) {
-            return ResponseEntity.ok("Login exitoso");
-        } else {
-            return ResponseEntity.status(401).body("Credenciales incorrectas");
-        }
     }
 }
