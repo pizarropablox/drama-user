@@ -1,6 +1,7 @@
 package com.drama.drama_user.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,12 +13,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty(message = "El email es obligatorio")
     @Column(unique = true, nullable = false)
     private String email;
 
+    @NotEmpty(message = "El nombre es obligatorio")
     @Column(nullable = false)
     private String nombre;
 
+    @NotEmpty(message = "La contraseña es obligatoria")
     @Column(nullable = false)
     private String password;
 

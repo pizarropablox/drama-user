@@ -25,19 +25,32 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public User createUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("El usuario no puede ser nulo");
+        }
+
+        Set<Role> roles = new HashSet<>();
+        for (Role role : user.getRoles()) {
+            Role existingRole = roleRepository.findByName(role.getName())
+                    .orElseGet(() -> roleRepository.save(new Role(role.getName())));
+            roles.add(existingRole);
+        }
+
+        user.setRoles(roles);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         try {
-            Set<Role> roles = new HashSet<>();
-            for (Role role : user.getRoles()) {
-                Role existingRole = roleRepository.findByName(role.getName())
-                        .orElseGet(() -> roleRepository.save(new Role(role.getName())));
-                roles.add(existingRole);
-            }
-            user.setRoles(roles);
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
             return userRepository.save(user);
         } catch (Exception e) {
-            throw new RuntimeException("Error al crear el usuario: " + e.getMessage());
+            throw new RuntimeException("Error al guardar el usuario: " + e.getMessage(), e);
         }
+    }
+
+    public boolean verifyPassword(String rawPassword, String encodedPassword) {
+        if (rawPassword == null || encodedPassword == null) {
+            throw new IllegalArgumentException("Las contraseñas no pueden ser nulas");
+        }
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     public List<User> getAllUsers() {
@@ -45,13 +58,16 @@ public class UserService {
     }
 
     public User findByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("El email no puede ser nulo o vacío");
+        }
+
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con el email: " + email));
     }
-    
+
     public boolean authenticateUser(String email, String password) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con el email: " + email));
-        return passwordEncoder.matches(password, user.getPassword());
+        User user = findByEmail(email);
+        return verifyPassword(password, user.getPassword());
     }
 }

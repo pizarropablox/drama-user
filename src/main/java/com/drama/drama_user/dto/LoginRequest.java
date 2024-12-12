@@ -1,10 +1,9 @@
-package com.drama.drama_user.model;
+package com.drama.drama_user.dto;
 
 public class LoginRequest {
     private String email;
     private String password;
 
-    // Getters y setters
     public String getEmail() {
         return email;
     }
