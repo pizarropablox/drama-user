@@ -37,7 +37,7 @@ class UserControllerTest {
         ResponseEntity<?> response = userController.registerUser(user);
 
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value()); // Cambio aquí
         assertEquals(user, response.getBody());
     }
 
@@ -52,7 +52,7 @@ class UserControllerTest {
         ResponseEntity<List<User>> response = userController.getAllUsers();
 
         assertNotNull(response);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value()); // Cambio aquí
         assertEquals(users, response.getBody());
     }
 }
